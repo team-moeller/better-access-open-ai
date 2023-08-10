@@ -2,8 +2,11 @@ Attribute VB_Name = "mdl_Helpers"
 '###########################################################################################
 '# Copyright (c) 2023 Thomas Moeller                                                       #
 '# MIT License  => https://github.com/team-moeller/better-access-open-ai/blob/main/LICENSE #
-'# Version 0.91.04  published: 06.08.2023                                                  #
+'# Version 0.93.04  published: 10.08.2023                                                  #
 '###########################################################################################
+
+Option Compare Database
+Option Explicit
 
 #If VBA7 Then
     Private Declare PtrSafe Function MakeSureDirectoryPathExists Lib "imagehlp.dll" (ByVal lpPath As String) As Long
@@ -34,8 +37,9 @@ Public Sub PrepareAndExportModules(Optional ByVal TagVersion As Boolean = True)
     Next
     Application.VBE.ActiveVBProject.VBComponents("Form_frm_Demo").CodeModule.InsertLines 6, "    Me.txtAPI_Key = ""INSERT YOUR OPEN AI API KEY HERE"""
     Application.VBE.ActiveVBProject.VBComponents("Form_frm_Demo").CodeModule.DeleteLines 7, 1
-    
     Application.DoCmd.RunCommand (acCmdCompileAndSaveAllModules)
+    DoCmd.Close acForm, "frm_Demo", acSaveYes
+    
     
     MsgBox "Export done", vbInformation, "Better Access Open-AI"
 
