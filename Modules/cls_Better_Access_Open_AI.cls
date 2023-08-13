@@ -10,17 +10,32 @@ Attribute VB_Exposed = True
 '###########################################################################################
 '# Copyright (c) 2023 Thomas Moeller                                                       #
 '# MIT License  => https://github.com/team-moeller/better-access-open-ai/blob/main/LICENSE #
-'# Version 0.93.04  published: 10.08.2023                                                  #
+'# Version 0.94.07  published: 13.08.2023                                                  #
 '###########################################################################################
 
 Option Compare Database
 Option Explicit
 
 
+'### Enums
+
+Public Enum oaiModel
+    gpt4 = 1
+    gpt35turbo = 2
+    TextDavinci3 = 3
+    TextDavinci2 = 4
+    davinci = 5
+    curie = 6
+    babbage = 7
+    ada = 7
+End Enum
+
+
 '### Members
 
 Private m_API_Key As String
 Private m_Max_Tokens As Long
+Private m_Model As oaiModel
 
 
 ' ### Properties
@@ -39,6 +54,13 @@ Public Property Get Max_Tokens() As Long
     Max_Tokens = m_Max_Tokens
 End Property
 
+Public Property Let Model(ByVal This_Model As oaiModel)
+    m_Model = This_Model
+End Property
+Public Property Get Model() As oaiModel
+    Model = m_Model
+End Property
+
 
 '### Instancing
 
@@ -46,6 +68,7 @@ Private Sub Class_Initialize()
     
     'Me.API_Key = "INSERT YOUR OPEN AI API-KEY HERE"
     Me.Max_Tokens = 500
+    Me.Model = oaiModel.gpt35turbo
     
 End Sub
 
@@ -64,12 +87,12 @@ Public Sub CreateCompletion(ByRef fSuccess As Boolean, ByRef Response As String)
     
     Set Request = CreateObject("MSXML2.ServerXMLHTTP")
     
-    Request.Open "POST", GetApiEndpoint("gpt-3.5-turbo"), False
+    Request.Open "POST", getApiEndpoint(), False
     Request.setRequestHeader "Content-Type", "application/json"
     Request.setRequestHeader "Authorization", "Bearer " & Me.API_Key
     
     RequestBody = "{"
-    RequestBody = RequestBody & """model"": ""gpt-3.5-turbo"","
+    RequestBody = RequestBody & """model"": """ & getModelAsText & ""","
     RequestBody = RequestBody & """max_tokens"": " & Me.Max_Tokens
     RequestBody = RequestBody & "," & """messages"": " & "[{""role"": ""user"", ""content"": """ & "Please introduce yourself." & """}]"
     RequestBody = RequestBody & "}"
@@ -89,33 +112,58 @@ End Sub
     
 '### Private Methods
 
-Private Function GetApiEndpoint(ByVal Model As String) As String
+Private Function getModelAsText() As String
+
+    Select Case Me.Model
+        Case oaiModel.ada
+            getModelAsText = "ada"
+        Case oaiModel.babbage
+            getModelAsText = "babbage"
+        Case oaiModel.curie
+            getModelAsText = "curie"
+        Case oaiModel.davinci
+            getModelAsText = "davinci"
+        Case oaiModel.gpt35turbo
+            getModelAsText = "gpt-3.5-turbo"
+        Case oaiModel.gpt4
+            getModelAsText = "gpt-4"
+        Case oaiModel.TextDavinci2
+            getModelAsText = "text-davinci-002"
+        Case oaiModel.TextDavinci3
+            getModelAsText = "text-davinci-003"
+        Case Else
+            getModelAsText = "gpt-3.5-turbo"
+    End Select
+
+End Function
+
+Private Function getApiEndpoint() As String
 
     'Declarations
     Dim ApiEndpoint As String
     
-    Select Case Model
-        Case "gpt-4"
+    Select Case Me.Model
+        Case oaiModel.gpt4
             ApiEndpoint = "https://api.openai.com/v1/chat/completions"
-        Case "gpt-3.5-turbo"
+        Case oaiModel.gpt35turbo
             ApiEndpoint = "https://api.openai.com/v1/chat/completions"
-        Case "text-davinci-003"
+        Case oaiModel.TextDavinci3
             ApiEndpoint = "https://api.openai.com/v1/completions"
-        Case "text-davinci-002"
+        Case oaiModel.TextDavinci2
             ApiEndpoint = "https://api.openai.com/v1/completions"
-        Case "davinci"
+        Case oaiModel.davinci
             ApiEndpoint = "https://api.openai.com/v1/completions"
-        Case "curie"
+        Case oaiModel.curie
             ApiEndpoint = "https://api.openai.com/v1/completions"
-        Case "babbage"
+        Case oaiModel.babbage
             ApiEndpoint = "https://api.openai.com/v1/completions"
-        Case "ada"
+        Case oaiModel.ada
             ApiEndpoint = "https://api.openai.com/v1/completions"
         Case Else
             ApiEndpoint = vbNullString
     End Select
     
-    GetApiEndpoint = ApiEndpoint
+    getApiEndpoint = ApiEndpoint
 
 End Function
 

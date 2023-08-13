@@ -2,7 +2,7 @@ Attribute VB_Name = "mdl_Helpers"
 '###########################################################################################
 '# Copyright (c) 2023 Thomas Moeller                                                       #
 '# MIT License  => https://github.com/team-moeller/better-access-open-ai/blob/main/LICENSE #
-'# Version 0.93.04  published: 10.08.2023                                                  #
+'# Version 0.94.07  published: 13.08.2023                                                  #
 '###########################################################################################
 
 Option Compare Database
@@ -39,7 +39,6 @@ Public Sub PrepareAndExportModules(Optional ByVal TagVersion As Boolean = True)
     Application.VBE.ActiveVBProject.VBComponents("Form_frm_Demo").CodeModule.DeleteLines 7, 1
     Application.DoCmd.RunCommand (acCmdCompileAndSaveAllModules)
     DoCmd.Close acForm, "frm_Demo", acSaveYes
-    
     
     MsgBox "Export done", vbInformation, "Better Access Open-AI"
 
