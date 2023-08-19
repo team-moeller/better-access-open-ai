@@ -10,7 +10,7 @@ Attribute VB_Exposed = True
 '###########################################################################################
 '# Copyright (c) 2023 Thomas Moeller                                                       #
 '# MIT License  => https://github.com/team-moeller/better-access-open-ai/blob/main/LICENSE #
-'# Version 0.94.07  published: 13.08.2023                                                  #
+'# Version 0.95.03  published: 19.08.2023                                                  #
 '###########################################################################################
 
 Option Compare Database
@@ -27,7 +27,7 @@ Public Enum oaiModel
     davinci = 5
     curie = 6
     babbage = 7
-    ada = 7
+    ada = 8
 End Enum
 
 
@@ -83,7 +83,6 @@ Public Sub CreateCompletion(ByRef fSuccess As Boolean, ByRef Response As String)
 
     'Declarations
     Dim Request As Object
-    Dim RequestBody As String
     
     Set Request = CreateObject("MSXML2.ServerXMLHTTP")
     
@@ -91,13 +90,7 @@ Public Sub CreateCompletion(ByRef fSuccess As Boolean, ByRef Response As String)
     Request.setRequestHeader "Content-Type", "application/json"
     Request.setRequestHeader "Authorization", "Bearer " & Me.API_Key
     
-    RequestBody = "{"
-    RequestBody = RequestBody & """model"": """ & getModelAsText & ""","
-    RequestBody = RequestBody & """max_tokens"": " & Me.Max_Tokens
-    RequestBody = RequestBody & "," & """messages"": " & "[{""role"": ""user"", ""content"": """ & "Please introduce yourself." & """}]"
-    RequestBody = RequestBody & "}"
-    
-    Request.send RequestBody
+    Request.send getRequestBody
 
     If Request.Status = 200 Then
         fSuccess = True
@@ -111,31 +104,6 @@ End Sub
 
     
 '### Private Methods
-
-Private Function getModelAsText() As String
-
-    Select Case Me.Model
-        Case oaiModel.ada
-            getModelAsText = "ada"
-        Case oaiModel.babbage
-            getModelAsText = "babbage"
-        Case oaiModel.curie
-            getModelAsText = "curie"
-        Case oaiModel.davinci
-            getModelAsText = "davinci"
-        Case oaiModel.gpt35turbo
-            getModelAsText = "gpt-3.5-turbo"
-        Case oaiModel.gpt4
-            getModelAsText = "gpt-4"
-        Case oaiModel.TextDavinci2
-            getModelAsText = "text-davinci-002"
-        Case oaiModel.TextDavinci3
-            getModelAsText = "text-davinci-003"
-        Case Else
-            getModelAsText = "gpt-3.5-turbo"
-    End Select
-
-End Function
 
 Private Function getApiEndpoint() As String
 
@@ -164,6 +132,54 @@ Private Function getApiEndpoint() As String
     End Select
     
     getApiEndpoint = ApiEndpoint
+
+End Function
+
+Private Function getRequestBody()
+
+    'Declarations
+    Dim RequestBody As String
+    
+    Select Case Me.Model
+        Case oaiModel.gpt35turbo, oaiModel.gpt4
+            RequestBody = "{"
+            RequestBody = RequestBody & """model"": """ & getModelAsText & ""","
+            RequestBody = RequestBody & """max_tokens"": " & Me.Max_Tokens
+            RequestBody = RequestBody & "," & """messages"": " & "[{""role"": ""user"", ""content"": """ & "Please introduce yourself." & """}]"
+            RequestBody = RequestBody & "}"
+        Case Else
+            RequestBody = "{"
+            RequestBody = RequestBody & """model"": """ & getModelAsText & ""","
+            RequestBody = RequestBody & """max_tokens"": " & Me.Max_Tokens
+            RequestBody = RequestBody & "," & """prompt"": " & """Please introduce yourself." & """"
+            RequestBody = RequestBody & "}"
+    End Select
+    getRequestBody = RequestBody
+
+End Function
+
+Private Function getModelAsText() As String
+
+    Select Case Me.Model
+        Case oaiModel.ada
+            getModelAsText = "ada"
+        Case oaiModel.babbage
+            getModelAsText = "babbage"
+        Case oaiModel.curie
+            getModelAsText = "curie"
+        Case oaiModel.davinci
+            getModelAsText = "davinci"
+        Case oaiModel.gpt35turbo
+            getModelAsText = "gpt-3.5-turbo"
+        Case oaiModel.gpt4
+            getModelAsText = "gpt-4"
+        Case oaiModel.TextDavinci2
+            getModelAsText = "text-davinci-002"
+        Case oaiModel.TextDavinci3
+            getModelAsText = "text-davinci-003"
+        Case Else
+            getModelAsText = "gpt-3.5-turbo"
+    End Select
 
 End Function
 
