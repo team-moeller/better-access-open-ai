@@ -2,7 +2,7 @@ Attribute VB_Name = "mdl_Helpers"
 '###########################################################################################
 '# Copyright (c) 2023 Thomas Moeller                                                       #
 '# MIT License  => https://github.com/team-moeller/better-access-open-ai/blob/main/LICENSE #
-'# Version 0.95.03  published: 19.08.2023                                                  #
+'# Version 0.96.02  published: 26.08.2023                                                  #
 '###########################################################################################
 
 Option Compare Database

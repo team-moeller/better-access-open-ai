@@ -10,7 +10,7 @@ Attribute VB_Exposed = True
 '###########################################################################################
 '# Copyright (c) 2023 Thomas Moeller                                                       #
 '# MIT License  => https://github.com/team-moeller/better-access-open-ai/blob/main/LICENSE #
-'# Version 0.95.03  published: 19.08.2023                                                  #
+'# Version 0.96.02  published: 26.08.2023                                                  #
 '###########################################################################################
 
 Option Compare Database
@@ -98,7 +98,7 @@ Public Sub CreateCompletion(ByRef fSuccess As Boolean, ByRef Response As String)
         fSuccess = False
     End If
     
-    Response = Request.responseText
+    Response = getResponseMessage(Request.responseText)
 
 End Sub
 
@@ -183,4 +183,25 @@ Private Function getModelAsText() As String
 
 End Function
 
+Private Function getResponseMessage(ByVal responseText As String) As String
+
+    'Declarations
+    Dim Message As String
+    
+    Select Case Me.Model
+        Case oaiModel.gpt35turbo, oaiModel.gpt4
+            Message = Right$(responseText, Len(responseText) - InStrRev(responseText, Chr(34) & "content" & Chr(34) & ": " & Chr(34)) - 11)
+            Message = Left$(Message, InStrRev(Message, Chr(34) & Chr(10) & "      }," & Chr(10) & "      ") - 1)
+        Case Else
+            Message = Right$(responseText, Len(responseText) - InStrRev(responseText, "[" & Chr(10) & "    {" & Chr(10) & "      " & Chr(34) & "text" & Chr(34) & ": " & Chr(34)) - 22)
+            Message = Left$(Message, InStrRev(Message, Chr(34) & "," & Chr(10) & "      " & Chr(34) & "index") - 1)
+            Message = Replace(Message, "\n", Chr(10))
+            If Left$(Message, 2) = Chr(10) & Chr(10) Then
+                Message = Right$(Message, Len(Message) - 2)
+            End If
+    End Select
+
+    getResponseMessage = Message
+    
+End Function
 
